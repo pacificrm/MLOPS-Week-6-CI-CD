@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
@@ -23,7 +24,7 @@ jobs:
 
       - name: Set up Docker credentials
         run: |
-          echo "${{ secrets.GCP_CREDENTIALS }}" > gcp-key.json
+          printf '%s' "${{ secrets.GCP_CREDENTIALS }}" > gcp-key.json
           gcloud auth activate-service-account --key-file=gcp-key.json
           gcloud config set project $PROJECT_ID
           gcloud auth configure-docker $REGION-docker.pkg.dev
