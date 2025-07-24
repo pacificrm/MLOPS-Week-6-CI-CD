@@ -15,6 +15,7 @@ jobs:
       REPO_NAME: my-repo
       IMAGE_NAME: iris-week-6-app
       NAMESPACE: iris-app
+      USE_GKE_GCLOUD_AUTH_PLUGIN: True
 
     steps:
       - name: Checkout code
@@ -27,6 +28,10 @@ jobs:
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
+
+      - name: Install GKE Auth Plugin
+        run: |
+          gcloud components install gke-gcloud-auth-plugin
 
       - name: Configure Docker for Artifact Registry
         run: gcloud auth configure-docker $REGION-docker.pkg.dev
@@ -41,8 +46,10 @@ jobs:
 
       - name: Set up GKE credentials
         run: |
+          export USE_GKE_GCLOUD_AUTH_PLUGIN=True
           gcloud container clusters get-credentials $CLUSTER_NAME --region $REGION --project $PROJECT_ID
 
       - name: Deploy to GKE
         run: |
+          export USE_GKE_GCLOUD_AUTH_PLUGIN=True
           kubectl apply -f k8s/
