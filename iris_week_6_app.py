@@ -12,7 +12,7 @@ logger = logging.getLogger("iris-api")
 # Try loading the model using joblib, else fallback to pickle
 try:
     import joblib
-    model = joblib.load("model.pkl")
+    model = joblib.load("model_new.pkl")
     loader = "joblib"
 except Exception:
     import pickle
