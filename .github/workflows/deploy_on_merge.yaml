@@ -22,9 +22,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Docker credentials
+      - name: Decode GCP Credentials and Authenticate
         run: |
-          printf '%s' "${{ secrets.GCP_CREDENTIALS }}" > gcp-key.json
+          echo "${{ secrets.GCP_CREDENTIALS }}" | base64 --decode > gcp-key.json
           gcloud auth activate-service-account --key-file=gcp-key.json
           gcloud config set project $PROJECT_ID
           gcloud auth configure-docker $REGION-docker.pkg.dev
