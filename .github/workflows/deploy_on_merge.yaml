@@ -1,5 +1,4 @@
 name: Build and Deploy to GKE
-
 on:
   push:
     branches:
@@ -9,7 +8,6 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-
     env:
       PROJECT_ID: just-skyline-461512-a8
       REGION: us-central1
@@ -20,14 +18,18 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Decode GCP Credentials and Authenticate
-        run: |
-          echo "${{ secrets.GCP_CREDENTIALS }}" | base64 --decode > gcp-key.json
-          gcloud auth activate-service-account --key-file=gcp-key.json
-          gcloud config set project $PROJECT_ID
-          gcloud auth configure-docker $REGION-docker.pkg.dev
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker $REGION-docker.pkg.dev
 
       - name: Build Docker image
         run: |
@@ -39,9 +41,8 @@ jobs:
 
       - name: Set up GKE credentials
         run: |
-          gcloud container clusters get-credentials $CLUSTER_NAME --region $REGION
+          gcloud container clusters get-credentials $CLUSTER_NAME --region $REGION --project $PROJECT_ID
 
       - name: Deploy to GKE
         run: |
           kubectl apply -f k8s/
-
