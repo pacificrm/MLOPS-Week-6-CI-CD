@@ -6,7 +6,7 @@ from joblib import load
 class TestModelAccuracy(unittest.TestCase):
     def test_model_on_sample(self):
         # Load sample data
-        sample_df = pd.read_csv("samples/sample.csv")
+        sample_df = pd.read_csv("samples/samples.csv")
         X = sample_df.drop(columns=["species"])
         y_true_raw = sample_df["species"]
 

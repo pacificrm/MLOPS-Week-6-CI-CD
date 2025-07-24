@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iris-app
+  namespace: iris-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: iris-app
+  template:
+    metadata:
+      labels:
+        app: iris-app
+    spec:
+      containers:
+      - name: iris-container
+        image: us-central1-docker.pkg.dev/just-skyline-461512-a8/my-repo/iris-week-6-app:latest
+        ports:
+        - containerPort: 8000
+

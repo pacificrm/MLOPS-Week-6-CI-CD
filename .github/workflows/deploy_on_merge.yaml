@@ -1,0 +1,46 @@
+name: Build and Deploy to GKE
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      PROJECT_ID: just-skyline-461512-a8
+      REGION: us-central1
+      CLUSTER_NAME: iris-week-6-cluster
+      REPO_NAME: my-repo
+      IMAGE_NAME: iris-week-6-app
+      NAMESPACE: iris-app
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker credentials
+        run: |
+          echo "${{ secrets.GCP_CREDENTIALS }}" > gcp-key.json
+          gcloud auth activate-service-account --key-file=gcp-key.json
+          gcloud config set project $PROJECT_ID
+          gcloud auth configure-docker $REGION-docker.pkg.dev
+
+      - name: Build Docker image
+        run: |
+          docker build -t $REGION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/$IMAGE_NAME:latest .
+
+      - name: Push Docker image
+        run: |
+          docker push $REGION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/$IMAGE_NAME:latest
+
+      - name: Set up GKE credentials
+        run: |
+          gcloud container clusters get-credentials $CLUSTER_NAME --region $REGION
+
+      - name: Deploy to GKE
+        run: |
+          kubectl apply -f k8s/
+
